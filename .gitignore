@@ -1,0 +1,23 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.coverprofile
+
+# Go workspace file
+*.workspace
+
+# Go mod
+go.sum
+
+# Go binaries
+bin/
+
+# IntelliJ IDEA / GoLand project files
+.idea/
