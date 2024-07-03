@@ -29,7 +29,8 @@ func main() {
 }
 
 func initKafkaClient() *kafka.KafkaClient {
-	kafkaClient, err := kafka.New()
+	// TODO: 환경 변수
+	kafkaClient, err := kafka.New([]string{"localhost:9092"})
 	if err != nil {
 		panic(err)
 	}
@@ -60,6 +61,7 @@ func startServer(kafkaClient *kafka.KafkaClient) {
 	wrappedMux := setJSONContentType(mux)
 
 	fmt.Println("Starting server at port 8080")
+	// TODO: 환경 변수
 	if err := http.ListenAndServe(":8080", wrappedMux); err != nil {
 		fmt.Println(err)
 	}

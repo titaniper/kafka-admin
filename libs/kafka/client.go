@@ -10,12 +10,12 @@ type KafkaClient struct {
 	admin  sarama.ClusterAdmin
 }
 
-func New() (*KafkaClient, error) {
+func New(borkers []string) (*KafkaClient, error) {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_1_0_0 // Kafka 버전에 맞춰 설정
 
 	// Kafka 클라이언트 생성
-	client, err := sarama.NewClient([]string{"localhost:9092"}, config)
+	client, err := sarama.NewClient(borkers, config)
 	if err != nil {
 		log.Fatalf("Error creating Kafka client: %v", err)
 	}
