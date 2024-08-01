@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/titaniper/gopang/libs/kafka"
 	"net/http"
 
+	"github.com/titaniper/gopang/libs/kafka"
+
+	cgc "github.com/titaniper/gopang/routers/consumerGroups"
 	tc "github.com/titaniper/gopang/routers/topics"
+	"github.com/titaniper/gopang/services/consumerGroups"
 	"github.com/titaniper/gopang/services/topics"
 )
 
@@ -30,7 +33,7 @@ func main() {
 
 func initKafkaClient() *kafka.KafkaClient {
 	// TODO: 환경 변수
-	kafkaClient, err := kafka.New([]string{"localhost:9092"})
+	kafkaClient, err := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +45,9 @@ func initKafkaClient() *kafka.KafkaClient {
 func startServer(kafkaClient *kafka.KafkaClient) {
 	// TODO: DI
 	topicService := topics.New(kafkaClient) // 서비스 초기화 예제
+	consumerGroupsService := consumerGroups.New(kafkaClient)
 	topicController := tc.New(topicService)
+	consumerGroupsController := cgc.New(consumerGroupsService)
 
 	// New Server Multiplexer
 	// 네트워크와 전자공학에서 멀티플렉서는 여러 신호를 하나의 신호로 결합하는 장치입니다. 반대로 디멀티플렉서(Demultiplexer)는 하나의 신호를 여러 신호로 분리합니다.
@@ -50,6 +55,10 @@ func startServer(kafkaClient *kafka.KafkaClient) {
 
 	// 라우트 설정
 	for _, route := range topicController.Routes() {
+		mux.HandleFunc(route.Path, route.Handler)
+	}
+	// TODO: 배열 하나에 담자?
+	for _, route := range consumerGroupsController.Routes() {
 		mux.HandleFunc(route.Path, route.Handler)
 	}
 

@@ -28,3 +28,7 @@ func (c *KafkaClient) GetTopics(keyword string) ([]string, error) {
 	}
 	return filtered, nil
 }
+
+func (c *KafkaClient) DeleteTopic(name string) error {
+	return c.admin.DeleteTopic(name)
+}
