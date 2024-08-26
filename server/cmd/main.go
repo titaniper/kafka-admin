@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 
-	"github.com/titaniper/gopang/libs/kafka"
+	"github.com/titaniper/kafka-admin/libs/kafka"
 
-	cgc "github.com/titaniper/gopang/routers/consumerGroups"
-	tc "github.com/titaniper/gopang/routers/topics"
-	"github.com/titaniper/gopang/services/consumerGroups"
-	"github.com/titaniper/gopang/services/topics"
+	cgc "github.com/titaniper/kafka-admin/routers/consumerGroups"
+	tc "github.com/titaniper/kafka-admin/routers/topics"
+	"github.com/titaniper/kafka-admin/services/consumerGroups"
+	"github.com/titaniper/kafka-admin/services/topics"
 )
 
 // setJSONContentType는 모든 응답에 Content-Type 헤더를 설정하는 미들웨어입니다.
@@ -33,7 +36,8 @@ func main() {
 
 func initKafkaClient() *kafka.KafkaClient {
 	// TODO: 환경 변수
-	kafkaClient, err := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
+	//kafkaClient, err := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
+	kafkaClient, err := kafka.New([]string{"localhost:9092"})
 	if err != nil {
 		panic(err)
 	}
@@ -43,6 +47,9 @@ func initKafkaClient() *kafka.KafkaClient {
 
 // TODO: router interface만 받도록 수정
 func startServer(kafkaClient *kafka.KafkaClient) {
+	r := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// TODO: DI
 	topicService := topics.New(kafkaClient) // 서비스 초기화 예제
 	consumerGroupsService := consumerGroups.New(kafkaClient)

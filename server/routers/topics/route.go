@@ -1,27 +1,27 @@
-package consumerGroups
+package topics
 
 import (
 	"encoding/json"
-	"github.com/titaniper/gopang/services/consumerGroups"
+	"github.com/titaniper/kafka-admin/services/topics"
 	"net/http"
 )
 
 type Controller struct {
-	consumerGroupsService *consumerGroups.Service
+	topicService *topics.Service
 }
 
-func New(service *consumerGroups.Service) *Controller {
+func New(service *topics.Service) *Controller {
 	return &Controller{
-		consumerGroupsService: service,
+		topicService: service,
 	}
 }
 
-func (c *Controller) ConsumerGroupsHandler(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) TopicsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodPost:
+		c.Create(w, r)
 	case http.MethodGet:
 		c.Get(w, r)
-	case http.MethodDelete:
-		c.Delete(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -35,10 +35,10 @@ func (c *Controller) Routes() []struct {
 		Path    string
 		Handler http.HandlerFunc
 	}{
-		{Path: "/consumer-groups", Handler: c.ConsumerGroupsHandler},
+		{Path: "/topics", Handler: c.TopicsHandler},
 	}
 }
-func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name string `json:"name"`
 	}
@@ -47,7 +47,7 @@ func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.consumerGroupsService.Delete(req.Name); err != nil {
+	if err := c.topicService.CreateTopic(req.Name); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +57,7 @@ func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 	keyword := r.URL.Query().Get("keyword")
-	topics, err := c.consumerGroupsService.List(keyword)
+	topics, err := c.topicService.GetTopics(keyword)
 	//json.NewEncoder(w).Encode(map[string][]string{
 	//	"data": {"하이", "하이"},
 	//})
