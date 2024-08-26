@@ -1,7 +1,7 @@
 package consumerGroups
 
 import (
-	"github.com/titaniper/gopang/libs/kafka"
+	"github.com/titaniper/kafka-admin/libs/kafka"
 )
 
 type Service struct {
@@ -25,6 +25,19 @@ func (s *Service) Delete(keyword string) error {
 	for _, group := range groups {
 		s.kafkaClient.DeleteConsumerGroup(group)
 	}
+
+	// NOTE: haulla-api--internal-stage
+
+	/**
+	1. 컨슈머 그룹 가져옴
+	- haulla-api-internal-stage 제외
+	- haulla-api-5285919834-internal-stage 패턴들
+	*/
+
+	/**
+	  2. 컨슈머 그룹에서
+	*/
+	// partitioned.haulla-5285919834.domain_event
 
 	// TODO: infrastructure?
 	//return s.kafkaClient.DeleteConsumerGroup(keyword)

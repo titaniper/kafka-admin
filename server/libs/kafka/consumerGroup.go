@@ -24,3 +24,7 @@ func (c *KafkaClient) GetConsumerGroups(keyword string) ([]string, error) {
 func (c *KafkaClient) DeleteConsumerGroup(name string) error {
 	return c.admin.DeleteConsumerGroup(name)
 }
+
+func (c *KafkaClient) DeleteConsumerGroupOffset(name, topic string, partition int32) error {
+	return c.admin.DeleteConsumerGroupOffset(name, topic, partition)
+}

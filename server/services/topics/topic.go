@@ -1,7 +1,7 @@
 package topics
 
 import (
-	"github.com/titaniper/gopang/libs/kafka"
+	"github.com/titaniper/kafka-admin/libs/kafka"
 )
 
 type Service struct {
@@ -9,6 +9,7 @@ type Service struct {
 }
 
 func New(kafkaClient *kafka.KafkaClient) *Service {
+
 	return &Service{
 		kafkaClient,
 	}
