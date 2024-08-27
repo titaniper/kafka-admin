@@ -1,6 +1,8 @@
-package consumerGroups
+package topics
 
 import (
+	"fmt"
+	"github.com/titaniper/kafka-admin/pkg/kafka"
 	"testing"
 )
 
@@ -14,11 +16,15 @@ const (
 // TODO: 개선 ㅋㅋ
 func Test_GET_CONNECTOR(t *testing.T) {
 	//kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
-	//kafkaClient, _ := kafka.New([]string{"localhost:9092"})
+	kafkaClient, _ := kafka.New([]string{"localhost:9092"})
 	//client := New(kafkaClient)
 
-	//service := New(kafkaClient)
-	//service.
+	service := New(kafkaClient)
+	topics, _ := service.GetConsumerGroupTopics("notification-service-development")
+	fmt.Println("------ resulrt ------ ")
+	for _, topic := range topics {
+		fmt.Println("------", topic)
+	}
 
 	// 1.
 	//response, _ := client.List()

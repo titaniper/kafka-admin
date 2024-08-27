@@ -59,8 +59,8 @@ func startServer(kafkaClient *kafka.KafkaClient) {
 		c.JSON(404, gin.H{"message": "404 - Not Found"})
 	})
 
-	fmt.Println("Starting server at port 8080")
-	if err := r.Run(":8080"); err != nil {
+	fmt.Println("Starting server at port 4243")
+	if err := r.Run(":4243"); err != nil {
 		fmt.Println(err)
 	}
 }

@@ -24,11 +24,15 @@ func Test_GET_CONNECTOR(t *testing.T) {
 		if len(connector.Tasks) > 0 {
 			taskStatus := statusResponse.TasksStatus[0]
 			if taskStatus.State == "FAILED" {
+				println("Metadata error", connector.Name)
 				if strings.Contains(taskStatus.Trace, " An exception occurred in the change event producer. This connector will be stopped.") {
 					println("1 Metadata error", connector.Name)
 					client.RestartTask(connector.Name, taskStatus.ID)
 				} else if strings.Contains(taskStatus.Trace, "The database schema history couldn't be recovered. Consider to increase the value for schema.history.internal.kafka.recovery.poll.interval.ms") {
 					println("2 Metadata error", connector.Name)
+					client.RestartTask(connector.Name, taskStatus.ID)
+				} else if strings.Contains(taskStatus.Trace, "java.lang.OutOfMemoryError: Java heap space") {
+					println("3 java.lang.OutOfMemoryError: Java heap space", connector.Name)
 					client.RestartTask(connector.Name, taskStatus.ID)
 				} else {
 					println("Another", connector.Name)

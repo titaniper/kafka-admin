@@ -6,7 +6,7 @@ import (
 )
 
 func (c *KafkaClient) GetConsumerGroups(keyword string) ([]string, error) {
-	topics, err := c.admin.ListConsumerGroups()
+	topics, err := c.Admin.ListConsumerGroups()
 	if err != nil {
 		log.Fatalf("Error listing topics: %v", err)
 		return nil, err
@@ -22,9 +22,9 @@ func (c *KafkaClient) GetConsumerGroups(keyword string) ([]string, error) {
 }
 
 func (c *KafkaClient) DeleteConsumerGroup(name string) error {
-	return c.admin.DeleteConsumerGroup(name)
+	return c.Admin.DeleteConsumerGroup(name)
 }
 
 func (c *KafkaClient) DeleteConsumerGroupOffset(name, topic string, partition int32) error {
-	return c.admin.DeleteConsumerGroupOffset(name, topic, partition)
+	return c.Admin.DeleteConsumerGroupOffset(name, topic, partition)
 }

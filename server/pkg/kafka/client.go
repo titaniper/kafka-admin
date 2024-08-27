@@ -6,26 +6,26 @@ import (
 )
 
 type KafkaClient struct {
-	client sarama.Client
-	admin  sarama.ClusterAdmin
+	Client sarama.Client
+	Admin  sarama.ClusterAdmin
 }
 
 func New(borkers []string) (*KafkaClient, error) {
 	config := sarama.NewConfig()
-	config.Version = sarama.V2_1_0_0 // Kafka 버전에 맞춰 설정
+	config.Version = sarama.V2_7_2_0 // Kafka 버전에 맞춰 설정
 
 	// Kafka 클라이언트 생성
 	client, err := sarama.NewClient(borkers, config)
 	if err != nil {
-		log.Fatalf("Error creating Kafka client: %v", err)
+		log.Fatalf("Error creating Kafka Client: %v", err)
 	}
-	//defer client.Close()
+	//defer Client.Close()
 
 	admin, err := sarama.NewClusterAdminFromClient(client)
 	if err != nil {
-		log.Fatalf("Error creating Kafka cluster admin: %v", err)
+		log.Fatalf("Error creating Kafka cluster Admin: %v", err)
 	}
-	//defer admin.Close()
+	//defer Admin.Close()
 
 	return &KafkaClient{
 		client,

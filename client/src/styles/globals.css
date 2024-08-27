@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 여기에 추가적인 전역 스타일을 작성할 수 있습니다 */
+body {
+    @apply text-gray-800 bg-gray-100;
+}
+
+input, select, textarea {
+    @apply text-gray-800 bg-white;
+}

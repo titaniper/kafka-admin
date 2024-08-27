@@ -7,14 +7,14 @@ import (
 )
 
 func (c *KafkaClient) CreateTopic(name string) error {
-	return c.admin.CreateTopic(name, &sarama.TopicDetail{
+	return c.Admin.CreateTopic(name, &sarama.TopicDetail{
 		NumPartitions:     1,
 		ReplicationFactor: 1,
 	}, false)
 }
 
 func (c *KafkaClient) GetTopics(keyword string) ([]string, error) {
-	topics, err := c.admin.ListTopics()
+	topics, err := c.Admin.ListTopics()
 	if err != nil {
 		log.Fatalf("Error listing topics: %v", err)
 		return nil, err
@@ -30,5 +30,5 @@ func (c *KafkaClient) GetTopics(keyword string) ([]string, error) {
 }
 
 func (c *KafkaClient) DeleteTopic(name string) error {
-	return c.admin.DeleteTopic(name)
+	return c.Admin.DeleteTopic(name)
 }
