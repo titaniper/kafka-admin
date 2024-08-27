@@ -1,7 +1,7 @@
 package consumerGroups
 
 import (
-	"github.com/titaniper/kafka-admin/libs/kafka"
+	"github.com/titaniper/kafka-admin/pkg/kafka"
 )
 
 type Service struct {

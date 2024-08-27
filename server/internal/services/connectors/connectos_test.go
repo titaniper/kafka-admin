@@ -1,7 +1,6 @@
-package consumerGroups
+package connectors
 
 import (
-	"github.com/titaniper/kafka-admin/libs/kafka"
 	"strings"
 	"testing"
 )
@@ -15,11 +14,9 @@ const (
 
 // TODO: 개선 ㅋㅋ
 func Test_GET_CONNECTOR(t *testing.T) {
-	kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
-	client := New(kafkaClient)
+	client := New("http://localhost:51541")
 
-	// 1.
-	response, _ := client.List()
+	response, _ := client.GetAllConnector()
 	for _, name := range response.Connectors {
 		connector, _ := client.GetConnector(name)
 
@@ -28,7 +25,10 @@ func Test_GET_CONNECTOR(t *testing.T) {
 			taskStatus := statusResponse.TasksStatus[0]
 			if taskStatus.State == "FAILED" {
 				if strings.Contains(taskStatus.Trace, " An exception occurred in the change event producer. This connector will be stopped.") {
-					println("Metadata error", connector.Name)
+					println("1 Metadata error", connector.Name)
+					client.RestartTask(connector.Name, taskStatus.ID)
+				} else if strings.Contains(taskStatus.Trace, "The database schema history couldn't be recovered. Consider to increase the value for schema.history.internal.kafka.recovery.poll.interval.ms") {
+					println("2 Metadata error", connector.Name)
 					client.RestartTask(connector.Name, taskStatus.ID)
 				} else {
 					println("Another", connector.Name)

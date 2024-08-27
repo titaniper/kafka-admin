@@ -5,80 +5,62 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 
-	"github.com/titaniper/kafka-admin/libs/kafka"
-
-	cgc "github.com/titaniper/kafka-admin/routers/consumerGroups"
-	tc "github.com/titaniper/kafka-admin/routers/topics"
-	"github.com/titaniper/kafka-admin/services/consumerGroups"
-	"github.com/titaniper/kafka-admin/services/topics"
+	_ "github.com/titaniper/kafka-admin/docs" // Swagger 문서를 임포트합니다
+	cgc "github.com/titaniper/kafka-admin/internal/routers/consumerGroups"
+	tc "github.com/titaniper/kafka-admin/internal/routers/topics"
+	"github.com/titaniper/kafka-admin/internal/services/consumerGroups"
+	"github.com/titaniper/kafka-admin/internal/services/topics"
+	"github.com/titaniper/kafka-admin/pkg/kafka"
 )
 
-// setJSONContentType는 모든 응답에 Content-Type 헤더를 설정하는 미들웨어입니다.
-func setJSONContentType(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		next.ServeHTTP(w, r)
-	})
-}
-
-// notFoundHandler는 허용되지 않은 경로에 대한 핸들러입니다.
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprintf(w, "404 - Not Found")
-}
-
+// @title Kafka Admin API
+// @version 1.0
+// @description This is a Kafka admin service API
+// @host localhost:8080
+// @BasePath /
 func main() {
 	kafkaClient := initKafkaClient()
 	startServer(kafkaClient)
 }
 
 func initKafkaClient() *kafka.KafkaClient {
-	// TODO: 환경 변수
-	//kafkaClient, err := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
 	kafkaClient, err := kafka.New([]string{"localhost:9092"})
 	if err != nil {
 		panic(err)
 	}
-
 	return kafkaClient
 }
 
-// TODO: router interface만 받도록 수정
 func startServer(kafkaClient *kafka.KafkaClient) {
 	r := gin.Default()
+
+	// Swagger 설정
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// TODO: DI
-	topicService := topics.New(kafkaClient) // 서비스 초기화 예제
+	topicService := topics.New(kafkaClient)
 	consumerGroupsService := consumerGroups.New(kafkaClient)
 	topicController := tc.New(topicService)
 	consumerGroupsController := cgc.New(consumerGroupsService)
 
-	// New Server Multiplexer
-	// 네트워크와 전자공학에서 멀티플렉서는 여러 신호를 하나의 신호로 결합하는 장치입니다. 반대로 디멀티플렉서(Demultiplexer)는 하나의 신호를 여러 신호로 분리합니다.
-	mux := http.NewServeMux()
-
 	// 라우트 설정
 	for _, route := range topicController.Routes() {
-		mux.HandleFunc(route.Path, route.Handler)
+		r.Handle(route.Method, route.Path, gin.HandlerFunc(route.Handler))
 	}
-	// TODO: 배열 하나에 담자?
 	for _, route := range consumerGroupsController.Routes() {
-		mux.HandleFunc(route.Path, route.Handler)
+		r.Handle(route.Method, route.Path, gin.HandlerFunc(route.Handler))
 	}
 
-	// 기본 핸들러 외의 모든 경로에 대해 notFoundHandler 설정
-	mux.HandleFunc("/", notFoundHandler)
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	// 정적 파일 서버 설정
+	r.Static("/static", "./static")
 
-	// 미들웨어를 사용하여 Content-Type 설정
-	wrappedMux := setJSONContentType(mux)
+	// 404 Not Found 핸들러
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"message": "404 - Not Found"})
+	})
 
 	fmt.Println("Starting server at port 8080")
-	// TODO: 환경 변수
-	if err := http.ListenAndServe(":8080", wrappedMux); err != nil {
+	if err := r.Run(":8080"); err != nil {
 		fmt.Println(err)
 	}
 }

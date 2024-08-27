@@ -17,4 +17,5 @@ go test -run Test_GET_CONNECTOR
 ```
 go install github.com/swaggo/swag/cmd/swag@latest
 swag init
+swag init -g cmd/main.go
 ```

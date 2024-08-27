@@ -1,4 +1,150 @@
+basePath: /
+definitions:
+  consumerGroups.ConsumerGroupsResponse:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+    type: object
+  consumerGroups.DeleteRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  consumerGroups.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  topics.CreateTopicRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  topics.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  topics.TopicsResponse:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8080
 info:
   contact: {}
-paths: {}
+  description: This is a Kafka admin service API
+  title: Kafka Admin API
+  version: "1.0"
+paths:
+  /consumer-groups:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Kafka consumer group
+      parameters:
+      - description: Consumer Group Name
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/consumerGroups.DeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/consumerGroups.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/consumerGroups.ErrorResponse'
+      summary: Delete a consumer group
+      tags:
+      - consumer-groups
+    get:
+      consumes:
+      - application/json
+      description: Get a list of Kafka consumer groups
+      parameters:
+      - description: Keyword to filter consumer groups
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/consumerGroups.ConsumerGroupsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/consumerGroups.ErrorResponse'
+      summary: Get consumer groups
+      tags:
+      - consumer-groups
+  /topics:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of Kafka topics
+      parameters:
+      - description: Keyword to filter topics
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/topics.TopicsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/topics.ErrorResponse'
+      summary: Get topics
+      tags:
+      - topics
+    post:
+      consumes:
+      - application/json
+      description: Create a new Kafka topic
+      parameters:
+      - description: Topic Name
+        in: body
+        name: topic
+        required: true
+        schema:
+          $ref: '#/definitions/topics.CreateTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/topics.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/topics.ErrorResponse'
+      summary: Create a new topic
+      tags:
+      - topics
 swagger: "2.0"

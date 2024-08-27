@@ -1,6 +1,7 @@
-package connectors
+package consumerGroups
 
 import (
+	"github.com/titaniper/kafka-admin/pkg/kafka"
 	"strings"
 	"testing"
 )
@@ -14,9 +15,11 @@ const (
 
 // TODO: 개선 ㅋㅋ
 func Test_GET_CONNECTOR(t *testing.T) {
-	client := New("http://localhost:56960")
+	kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
+	client := New(kafkaClient)
 
-	response, _ := client.GetAllConnector()
+	// 1.
+	response, _ := client.List()
 	for _, name := range response.Connectors {
 		connector, _ := client.GetConnector(name)
 
