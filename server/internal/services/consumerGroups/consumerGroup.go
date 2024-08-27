@@ -5,6 +5,8 @@ import (
 	"github.com/IBM/sarama"
 	m "github.com/titaniper/kafka-admin/internal/models"
 	"github.com/titaniper/kafka-admin/pkg/kafka"
+	"log"
+	"regexp"
 )
 
 type Service struct {
@@ -124,6 +126,54 @@ func (s *Service) ResetOffset(groupID, topic string, partition int32) error {
 	err := admin.DeleteConsumerGroupOffset(groupID, topic, partition)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (s *Service) DeleteTopicsFromConsumerGroups(consumerGroupPattern, topicPattern string) error {
+	admin := s.kafkaClient.Admin
+
+	// 컨슈머 그룹 목록 가져오기
+	groups, err := admin.ListConsumerGroups()
+	if err != nil {
+		return fmt.Errorf("error listing consumer groups: %v", err)
+	}
+
+	consumerGroupRegex, err := regexp.Compile(consumerGroupPattern)
+	if err != nil {
+		return fmt.Errorf("invalid consumer group pattern: %v", err)
+	}
+
+	topicRegex, err := regexp.Compile(topicPattern)
+	if err != nil {
+		return fmt.Errorf("invalid topic pattern: %v", err)
+	}
+
+	for group := range groups {
+		if consumerGroupRegex.MatchString(group) {
+			// 컨슈머 그룹의 오프셋 정보 가져오기
+			offsetFetchResponse, err := admin.ListConsumerGroupOffsets(group, nil)
+			if err != nil {
+				log.Printf("Error listing offsets for group %s: %v", group, err)
+				continue
+			}
+
+			for topic := range offsetFetchResponse.Blocks {
+				if topicRegex.MatchString(topic) {
+					// 토픽의 모든 파티션에 대해 오프셋 삭제
+					partitions := offsetFetchResponse.Blocks[topic]
+					for partition := range partitions {
+						err := admin.DeleteConsumerGroupOffset(group, topic, partition)
+						if err != nil {
+							log.Printf("Error deleting offset for group %s, topic %s, partition %d: %v", group, topic, partition, err)
+						} else {
+							log.Printf("Successfully deleted offset for group %s, topic %s, partition %d", group, topic, partition)
+						}
+					}
+				}
+			}
+		}
 	}
 
 	return nil

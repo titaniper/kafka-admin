@@ -1,6 +1,8 @@
 package consumerGroups
 
 import (
+	"github.com/titaniper/kafka-admin/pkg/kafka"
+	"log"
 	"testing"
 )
 
@@ -13,6 +15,17 @@ const (
 
 // TODO: 개선 ㅋㅋ
 func Test_GET_CONNECTOR(t *testing.T) {
+	kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
+	//kafkaClient, _ := kafka.New([]string{"localhost:9092"})
+	//kafkaClient, _ := kafka.New([]string{"localhost:55955"})
+	//client := New(kafkaClient)
+
+	service := New(kafkaClient)
+	err := service.DeleteTopicsFromConsumerGroups(`haulla-api-\d+-internal-stage`, `partitioned\.haulla-\d+\.domain_event`)
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+
 	//kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
 	//kafkaClient, _ := kafka.New([]string{"localhost:9092"})
 	//client := New(kafkaClient)
