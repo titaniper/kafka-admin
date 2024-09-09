@@ -19,15 +19,17 @@ func New(kafkaClient *kafka.KafkaClient) *Service {
 	}
 }
 
-func (s *Service) List(keyword string) ([]string, error) {
+func (s *Service) List(keyword string, isInactive bool) ([]string, error) {
 	// TODO: infrastructure?
-	return s.kafkaClient.GetConsumerGroups(keyword)
+	return s.kafkaClient.GetConsumerGroups(keyword, isInactive)
 }
 
 func (s *Service) Delete(keyword string) error {
 	// TODO: 전체 삭제하지마
-	groups, _ := s.List(keyword)
+	groups, _ := s.List(keyword, true)
+	fmt.Printf("Deleting groups: %d\n", len(groups))
 	for _, group := range groups {
+		fmt.Printf("Deleting group %s\n", group)
 		s.kafkaClient.DeleteConsumerGroup(group)
 	}
 

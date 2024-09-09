@@ -82,7 +82,7 @@ func (c *Controller) Delete(ctx *gin.Context) {
 // @Router /consumer-groups [get]
 func (c *Controller) Get(ctx *gin.Context) {
 	keyword := ctx.Query("keyword")
-	groups, err := c.consumerGroupsService.List(keyword)
+	groups, err := c.consumerGroupsService.List(keyword, false)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return

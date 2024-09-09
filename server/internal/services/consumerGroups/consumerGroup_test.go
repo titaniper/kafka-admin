@@ -52,3 +52,12 @@ func Test_GET_CONNECTOR(t *testing.T) {
 	//	}
 	//}
 }
+
+func Test_DELETE_CONSUMER_GROUP(t *testing.T) {
+	kafkaClient, _ := kafka.New([]string{"kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"})
+	service := New(kafkaClient)
+	err := service.Delete(`haulla-api-`)
+	if err != nil {
+		log.Fatalf("Error: %v", err)
+	}
+}

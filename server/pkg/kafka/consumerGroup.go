@@ -5,17 +5,31 @@ import (
 	"strings"
 )
 
-func (c *KafkaClient) GetConsumerGroups(keyword string) ([]string, error) {
-	topics, err := c.Admin.ListConsumerGroups()
+func (c *KafkaClient) GetConsumerGroups(keyword string, isInactive bool) ([]string, error) {
+	consumerGroups, err := c.Admin.ListConsumerGroups()
 	if err != nil {
-		log.Fatalf("Error listing topics: %v", err)
+		log.Fatalf("Error listing consumerGroups: %v", err)
 		return nil, err
 	}
 
 	var filtered []string
-	for topic := range topics {
-		if keyword == "" || strings.Contains(topic, keyword) {
-			filtered = append(filtered, topic)
+	for consumerGroup := range consumerGroups {
+		if keyword == "" || strings.Contains(consumerGroup, keyword) {
+			if isInactive {
+				// Describe the consumer group to get its members
+				descriptions, err := c.Admin.DescribeConsumerGroups([]string{consumerGroup})
+				if err != nil {
+					log.Printf("Error describing consumer group %s: %v", consumerGroup, err)
+					continue
+				}
+
+				// Check if the consumer group has any members
+				if len(descriptions[0].Members) > 0 {
+					continue // Skip this group as it has active members
+				}
+			}
+
+			filtered = append(filtered, consumerGroup)
 		}
 	}
 	return filtered, nil
